@@ -68,43 +68,51 @@ const App: React.FC = () => {
   const handleSaveLink = async (linkData: Omit<LinkItem, 'id'>) => {
     let error;
 
-    if (editingLink) {
-      // Update existing link
-      const result = await supabase
-        .from('links')
-        .update({
-          title: linkData.title,
-          url: linkData.url,
-          icon: linkData.icon,
-          // Colors are preserved from editingLink or passed back from modal, 
-          // but modal passes back what's in state. 
-          // LinkModal uses existing colors if editing.
-          color_class: linkData.colorClass,
-          bg_class: linkData.bgClass
-        })
-        .eq('id', editingLink.id);
-      error = result.error;
-    } else {
-      // Insert new link
-      const result = await supabase
-        .from('links')
-        .insert([{
-          title: linkData.title,
-          url: linkData.url,
-          icon: linkData.icon,
-          color_class: linkData.colorClass,
-          bg_class: linkData.bgClass
-        }]);
-      error = result.error;
-    }
+    try {
+      if (editingLink?.id) {
+        // Update existing link
+        const { error: updateError, data } = await supabase
+          .from('links')
+          .update({
+            title: linkData.title,
+            url: linkData.url,
+            icon: linkData.icon,
+            color_class: linkData.colorClass,
+            bg_class: linkData.bgClass
+          })
+          .eq('id', editingLink.id)
+          .select();
 
-    if (error) {
-      console.error('Error saving link:', error);
-      alert('Erro ao salvar link.');
-    } else {
-      fetchLinks();
-      setIsModalOpen(false);
-      setEditingLink(null);
+        error = updateError;
+
+        if (!error && (!data || data.length === 0)) {
+          console.warn("Update succeeded but no rows returned. ID mismatch?");
+        }
+      } else {
+        // Insert new link
+        const { error: insertError } = await supabase
+          .from('links')
+          .insert([{
+            title: linkData.title,
+            url: linkData.url,
+            icon: linkData.icon,
+            color_class: linkData.colorClass,
+            bg_class: linkData.bgClass
+          }]);
+        error = insertError;
+      }
+
+      if (error) {
+        console.error('Error saving link:', error);
+        alert('Erro ao salvar link: ' + error.message);
+      } else {
+        await fetchLinks();
+        setIsModalOpen(false);
+        setEditingLink(null);
+      }
+    } catch (err) {
+      console.error("Unexpected error saving link:", err);
+      alert("Ocorreu um erro inesperado ao salvar.");
     }
   };
 
