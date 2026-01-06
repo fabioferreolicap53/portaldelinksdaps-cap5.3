@@ -18,7 +18,7 @@ const LinkCard: React.FC<LinkCardProps> = ({ link, isAdmin, onDelete, onCopy, on
       </div>
 
       <div className="flex-1 min-w-0">
-        <h3 className="text-base font-semibold text-[#111318] dark:text-white truncate">
+        <h3 className="text-base font-semibold text-[#111318] dark:text-white leading-snug">
           {link.title}
         </h3>
         <a
