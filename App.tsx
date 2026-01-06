@@ -196,6 +196,9 @@ const App: React.FC = () => {
                 </>
               )}
             </p>
+            <p className="text-[10px] text-gray-400 mt-2">
+              Desenvolvido por Fabio Ferreira de Oliveira - DAPS/CAP5.3
+            </p>
           </div>
         </div>
 
