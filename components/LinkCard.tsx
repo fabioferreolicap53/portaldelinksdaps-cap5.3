@@ -30,8 +30,8 @@ const LinkCard: React.FC<LinkCardProps> = ({ link, isAdmin, onDelete, onCopy, on
           {link.url}
         </a>
         {link.observations && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 italic">
-            Observações: {link.observations}
+          <p className="text-xs text-blue-900 dark:text-blue-300 mt-1 line-clamp-2 italic">
+            {link.observations}
           </p>
         )}
       </div>
