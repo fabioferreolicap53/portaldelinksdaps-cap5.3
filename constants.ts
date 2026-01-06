@@ -37,6 +37,6 @@ export const INITIAL_LINKS: LinkItem[] = [
 ];
 
 export const ACCESS_KEYS = {
-  admin: 'admin123',
+  admin: '@Daps64125',
   user: 'user123'
 };
