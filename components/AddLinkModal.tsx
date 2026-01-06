@@ -13,6 +13,18 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({ onClose, onSave, initialDat
   const [url, setUrl] = useState(initialData?.url || '');
   const [icon, setIcon] = useState(initialData?.icon || 'link');
 
+  React.useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title);
+      setUrl(initialData.url);
+      setIcon(initialData.icon);
+    } else {
+      setTitle('');
+      setUrl('');
+      setIcon('link');
+    }
+  }, [initialData]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !url) return;

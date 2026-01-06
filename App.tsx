@@ -246,6 +246,7 @@ const App: React.FC = () => {
       {/* Modals and Notifications */}
       {isModalOpen && (
         <AddLinkModal
+          key={editingLink ? editingLink.id : 'new-link'}
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveLink}
           initialData={editingLink}
