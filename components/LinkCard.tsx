@@ -29,6 +29,11 @@ const LinkCard: React.FC<LinkCardProps> = ({ link, isAdmin, onDelete, onCopy, on
         >
           {link.url}
         </a>
+        {link.observations && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+            {link.observations}
+          </p>
+        )}
       </div>
 
       <div className="flex items-center gap-1 md:gap-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">

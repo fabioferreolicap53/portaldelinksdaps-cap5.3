@@ -12,16 +12,19 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({ onClose, onSave, initialDat
   const [title, setTitle] = useState(initialData?.title || '');
   const [url, setUrl] = useState(initialData?.url || '');
   const [icon, setIcon] = useState(initialData?.icon || 'link');
+  const [observations, setObservations] = useState(initialData?.observations || '');
 
   React.useEffect(() => {
     if (initialData) {
       setTitle(initialData.title);
       setUrl(initialData.url);
       setIcon(initialData.icon);
+      setObservations(initialData.observations || '');
     } else {
       setTitle('');
       setUrl('');
       setIcon('link');
+      setObservations('');
     }
   }, [initialData]);
 
@@ -53,7 +56,8 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({ onClose, onSave, initialDat
       url,
       icon,
       colorClass,
-      bgClass
+      bgClass,
+      observations
     });
     onClose();
   };
@@ -104,6 +108,16 @@ const AddLinkModal: React.FC<AddLinkModalProps> = ({ onClose, onSave, initialDat
                 <span className="material-symbols-outlined">{icon}</span>
               </div>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1.5 dark:text-gray-200">Observações</label>
+            <textarea
+              className="w-full rounded-lg border-gray-200 dark:border-gray-700 dark:bg-[#2d3748] dark:text-white focus:ring-primary focus:border-primary text-sm min-h-[80px]"
+              placeholder="Informações adicionais sobre este link..."
+              value={observations}
+              onChange={(e) => setObservations(e.target.value)}
+            />
           </div>
 
           <div className="flex gap-3 pt-4">

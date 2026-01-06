@@ -6,6 +6,8 @@ export interface LinkItem {
   icon: string;
   colorClass: string;
   bgClass: string;
+  observations?: string;
+  orderIndex?: number;
 }
 
 export enum UserRole {

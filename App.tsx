@@ -19,7 +19,8 @@ const App: React.FC = () => {
     const { data, error } = await supabase
       .from('links')
       .select('*')
-      .order('created_at', { ascending: false });
+      .select('*')
+      .order('order_index', { ascending: true });
 
     if (error) {
       console.error('Error fetching links:', error);
@@ -30,7 +31,9 @@ const App: React.FC = () => {
         url: item.url,
         icon: item.icon,
         colorClass: item.color_class,
-        bgClass: item.bg_class
+        bgClass: item.bg_class,
+        observations: item.observations,
+        orderIndex: item.order_index
       }));
       setLinks(mappedLinks);
     }
@@ -78,7 +81,8 @@ const App: React.FC = () => {
             url: linkData.url,
             icon: linkData.icon,
             color_class: linkData.colorClass,
-            bg_class: linkData.bgClass
+            bg_class: linkData.bgClass,
+            observations: linkData.observations
           })
           .eq('id', editingLink.id)
           .select();
@@ -97,7 +101,9 @@ const App: React.FC = () => {
             url: linkData.url,
             icon: linkData.icon,
             color_class: linkData.colorClass,
-            bg_class: linkData.bgClass
+            bg_class: linkData.bgClass,
+            observations: linkData.observations,
+            order_index: links.length // Append to end
           }]);
         error = insertError;
       }
@@ -142,6 +148,47 @@ const App: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.dataTransfer.setData('text/plain', index.toString());
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>, targetIndex: number) => {
+    e.preventDefault();
+    if (auth.role !== UserRole.ADMIN) return;
+
+    const sourceIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+    if (sourceIndex === targetIndex) return;
+
+    const newLinks = [...links];
+    const [movedLink] = newLinks.splice(sourceIndex, 1);
+    newLinks.splice(targetIndex, 0, movedLink);
+
+    // Optimistic update
+    setLinks(newLinks);
+
+    // Persist new order
+    // We update all links that might have changed order.
+    // simpler to update all index for now or smarter logic.
+    // For small list, updating all is fine.
+    const updates = newLinks.map((link, index) => ({
+      id: link.id,
+      order_index: index
+    }));
+
+    // Batch update? Supabase doesn't have direct bulk update for different values easily
+    // We can use upsert if we provide all required fields, but we only want to update order_index.
+    // So we loop.
+    for (const update of updates) {
+      await supabase.from('links').update({ order_index: update.order_index }).eq('id', update.id);
+    }
+  };
+
   const handleCopyLink = useCallback((url: string) => {
     navigator.clipboard.writeText(url).then(() => {
       setCopyFeedback('Link copiado!');
@@ -176,15 +223,23 @@ const App: React.FC = () => {
           {/* Links List */}
           <div className="divide-y divide-gray-100 dark:divide-gray-800 min-h-[100px]">
             {links.length > 0 ? (
-              links.map(link => (
-                <LinkCard
+              links.map((link, index) => (
+                <div
                   key={link.id}
-                  link={link}
-                  isAdmin={auth.role === UserRole.ADMIN}
-                  onDelete={handleDeleteLink}
-                  onCopy={handleCopyLink}
-                  onEdit={handleEditLink}
-                />
+                  draggable={auth.role === UserRole.ADMIN}
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, index)}
+                  className={auth.role === UserRole.ADMIN ? 'cursor-move active:cursor-grabbing' : ''}
+                >
+                  <LinkCard
+                    link={link}
+                    isAdmin={auth.role === UserRole.ADMIN}
+                    onDelete={handleDeleteLink}
+                    onCopy={handleCopyLink}
+                    onEdit={handleEditLink}
+                  />
+                </div>
               ))
             ) : (
               <div className="p-10 text-center text-gray-400 dark:text-gray-600 italic">
