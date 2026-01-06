@@ -196,6 +196,9 @@ const App: React.FC = () => {
                 </>
               )}
             </p>
+            <p className="text-[10px] text-gray-400 mt-2">
+              Desenvolvido por Fabio Ferreira de Oliveira - DAPS/CAP5.3
+            </p>
 
           </div>
         </div>
@@ -234,11 +237,7 @@ const App: React.FC = () => {
         )}
       </div>
 
-      <footer className="mt-auto text-center animate-in fade-in duration-500 delay-150">
-        <p className="text-[10px] text-gray-400/80 dark:text-gray-600 font-medium">
-          Desenvolvido por Fabio Ferreira de Oliveira - DAPS/CAP5.3
-        </p>
-      </footer>
+
 
       {/* Modals and Notifications */}
       {isModalOpen && (
